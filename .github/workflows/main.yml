@@ -1,0 +1,37 @@
+name: Build macOS ARM App
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-14  # macOS runner with Apple Silicon support
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller customtkinter pillow requests
+
+      - name: Build app
+        run: |
+          pyinstaller --noconfirm --onefile \
+            --windowed \
+            --icon=icon.icns \
+            --name="ZWallpaper" main.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZWallpaper-ARM
+          path: dist/ZWallpaper.app
